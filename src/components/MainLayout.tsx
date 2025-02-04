@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Menu, User, MessageCircle, ChevronRight, Store, MapPin, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 function MainLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
+  const contactus =()=>{
+    navigate('/contactus');
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden">
       {/* Navbar */}
@@ -82,7 +85,7 @@ function MainLayout() {
               <button className="px-8 py-4 bg-white text-indigo-600 rounded-full font-semibold hover:bg-indigo-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                 Start Free Trial
               </button>
-              <button className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition-all">
+              <button className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white/10 transition-all" onClick={contactus}>
                 Schedule Demo
               </button>
             </div>
