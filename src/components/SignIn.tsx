@@ -18,15 +18,15 @@ function SignIn({ title }: { title: string }) {
       setError('Failed to sign in');
     }
   };
-
-  const handleGoogleSignIn = async () => {
+const provider = new GoogleAuthProvider();
+  const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      navigate('/');
-    } catch (error) {
-      setError('Failed to sign in with Google');
-    }
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("User signed in: ", user);
+  } catch (error) {
+      console.error("Error during sign-in: ", error);
+  }
   };
 
   const handleRegisterRedirect = () => {
@@ -72,7 +72,7 @@ function SignIn({ title }: { title: string }) {
         
         <div className="mt-4">
           <button
-            onClick={handleGoogleSignIn}
+            onClick={signInWithGoogle}
             className="w-full border border-gray-300 text-gray-700 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
           >
             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
