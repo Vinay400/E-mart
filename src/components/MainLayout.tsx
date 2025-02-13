@@ -1,13 +1,36 @@
-import React, { useState } from 'react';
-import { ShoppingCart, Menu, User, MessageCircle, ChevronRight, Store, MapPin, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Menu, User, MessageCircle, ChevronRight, Store, MapPin, Users, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../../firebaseconfig';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+
 function MainLayout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const contactus =()=>{
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const contactus = () => {
     navigate('/contactus');
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 overflow-x-hidden">
       {/* Navbar */}
@@ -44,16 +67,41 @@ function MainLayout() {
             </div>
 
             <div className="flex items-center space-x-6">
-              <Link 
-                to="/signin"
-                className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-              >
-                <span>Sign In</span>
-              </Link>
-              
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <User className="h-6 w-6 text-gray-600" />
-              </button>
+              {currentUser ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="font-medium">
+                      {currentUser.displayName?.split('@')[0]}
+                    </span>
+                    <ChevronRight className={`h-4 w-4 transform transition-transform ${isUserMenuOpen ? 'rotate-90' : ''}`} />
+                  </button>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100">
+                      <div className="py-1">
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center space-x-2 w-full px-4 py-2 text-left text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                        >
+                          <LogOut className="h-5 w-5" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link 
+                  to="/signin"
+                  className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+                >
+                  <span>Sign In</span>
+                </Link>
+              )}
               
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -66,9 +114,8 @@ function MainLayout() {
         </div>
       </nav>
 
-      {/* Rest of the content */}
-       {/* Hero Section */}
-       <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557821552-17105176677c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1932&q=80')] bg-cover bg-center opacity-10"></div>
         </div>
@@ -193,4 +240,5 @@ function MainLayout() {
     </div>
   );
 }
+
 export default MainLayout;
